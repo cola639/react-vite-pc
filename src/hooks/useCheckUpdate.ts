@@ -1,13 +1,14 @@
+import { Modal } from 'antd-mobile';
 import { useEffect, useState } from 'react';
 
 // 自定义 Hook 用于检查版本更新
-const useCheckUpdate = (currentVersion, interval) => {
-  const [message, setMessage] = useState(null);
+const useCheckUpdate = () => {
+  const currentVersion = import.meta.env.APP_VERSION;
+  const interval = 30 * 1000; // 检查更新间隔，单位为毫秒
 
   useEffect(() => {
-    // 定期检查更新的函数
     const checkForUpdates = setInterval(() => {
-      fetch('/version.json') // 获取最新版本信息的 API
+      fetch('/version.json') // 获取public发布的版本号
         .then((response) => {
           console.log('🚀 >> .then >> response:', response);
           return response.json(); // 正确地解析 JSON 数据
@@ -15,8 +16,16 @@ const useCheckUpdate = (currentVersion, interval) => {
         .then((data) => {
           console.log('🚀 >> .then >> data:', data); // 打印 data 对象
           if (data.version !== currentVersion) {
-            setMessage('New version available! Fetching new resources...');
             // 可以触发更新或请求新资源
+            Modal.confirm({
+              title: '系统更新提示',
+              content: '系统后台有更新，请点击“立即刷新”刷新页面。',
+              confirmText: '立即刷新',
+              cancelText: '稍后提醒我',
+              onConfirm: () => {
+                window.location.reload();
+              }
+            });
           }
         })
         .catch((error) => {
@@ -25,9 +34,7 @@ const useCheckUpdate = (currentVersion, interval) => {
     }, interval); // 传入的时间间隔，默认为1分钟
 
     return () => clearInterval(checkForUpdates); // 清理定时器
-  }, [currentVersion, interval]); // 确保当 currentVersion 或 interval 变化时重新设置定时器
-
-  return message;
+  }, []);
 };
 
 export default useCheckUpdate;

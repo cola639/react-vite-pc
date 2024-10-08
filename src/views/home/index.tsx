@@ -1,8 +1,8 @@
 import { FC, useEffect } from 'react';
 
-interface Iindex {}
+interface IIndex {}
 
-const index: FC<Iindex> = () => {
+const index: FC<IIndex> = () => {
   useEffect(() => {
     return () => {};
   }, []);
